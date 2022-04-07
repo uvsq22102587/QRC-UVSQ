@@ -3,6 +3,14 @@ from PIL import Image
 from PIL import ImageTk 
 
 
+def nbrCol(matrice):
+    return(len(matrice[0]))
+
+
+def nbrLig(matrice):
+    return len(matrice)
+
+
 def saving(matPix, filename):
     #sauvegarde l'image contenue dans matpix dans le fichier filename
 	#utiliser une extension png pour que la fonction fonctionne sans perte d'information
@@ -152,8 +160,40 @@ def correctionHamming(bits):
         bits[3] = int(not bits[3])
     return bits[:4]
 
+
+def filtre(matrice):
+    """Fonction qui vérifie le filtre et son type et qui applique ce filtre au pixel du QRC"""
+    filtre = matrice[23][8] << 1 | matrice[22][8]
+    matriceFiltre = [[0 for j in range(0, 14)] for i in range(0, 16)]
+    if filtre == 0:
+        return matrice
+    elif filtre == 1:
+        for i in range(0, 16):
+            for j in range(0, 14):
+                if (i + j) % 2 == 1:
+                    matriceFiltre[i][j] = 1
+    elif filtre == 2:
+        for i in range(0, 16):
+            for j in range(0, 14):
+                if i % 2 == 1:
+                    matriceFiltre[i][j] = 1
+    elif filtre == 3:
+        for i in range(0, 16):
+            for j in range(0, 14):
+                if j % 2 == 1:
+                    matriceFiltre[i][j] = int(not matriceFiltre[i][j])
+    for i in range(len(matriceFiltre)):
+        for j in range(len(matriceFiltre[0])):
+            x1, y1 = len(matrice[0]) - 1, len(matrice) - 1
+            x2, y2 = len(matriceFiltre[0]) - 1, len(matriceFiltre) - 1
+            matrice[y1 - i][x1 - j] = matrice[y1 - i][x1 - j] ^ matriceFiltre[y2 - i][x2 - j]
+    print("filtre {filtre} appliqué".format(filtre=filtre))
+    return matrice
+
+
 def HammingRead(matrice):
     """Fonction qui prend une matrice de pixels et la lit en effectuant la vérification via le code de Hamming."""
+    filtre(matrice)
     donnees = []
     bloc = []
     etage = 0
@@ -184,6 +224,7 @@ def HammingRead(matrice):
                 donnees.extend(bloc)
                 bloc = []
         etage += 1
+    print(donnees)
     return donnees
 
 
@@ -196,7 +237,7 @@ def to_ascii(data:list):
         if len(ascii) == 8:
             resultat += chr(int(ascii, 2))
             ascii = ""
-    resultat += ascii
+    
     return resultat
 
 print(to_ascii(HammingRead(loading("qr_code_damier_ascii.png"))))
