@@ -139,18 +139,17 @@ def verifLignesQRC(matrice):
             check = False
     return check
 
-verifLignesQRC(loading("qr_code_ssfiltre_ascii_rotation.png"))
-
-
 
 def correctionHamming(bits):
+    print(bits, "bit avant correction")
     # calcul bits de controle
     p1 = bits[0] ^ bits[1] ^ bits[2]
     p2 = bits[0] ^ bits[2] ^ bits[3]
     p3 = bits[1] ^ bits[2] ^ bits[3]
     # position erreur
-    num = int(p1 != bits[0]) + int(p2 != bits[1])*2 + int(p3 != bits[3]) * 4
-    if (num == 3):
+    num = int(p1 != bits[4]) + int(p2 != bits[5]) * 2 + int(p3 != bits[6]) * 4
+    print(num, "num")
+    if num == 3:
         bits[0] = int(not bits[0])
     if num == 5:
         bits[1] = int(not bits[1])
@@ -158,26 +157,32 @@ def correctionHamming(bits):
         bits[2] = int(not bits[2])
     if num == 7:
         bits[3] = int(not bits[3])
+    print(bits, "bit après correction")
     return bits[:4]
 
 
 def filtre(matrice):
     """Fonction qui vérifie le filtre et son type et qui applique ce filtre au pixel du QRC"""
-    filtre = matrice[23][8] << 1 | matrice[22][8]
+    # filtre = matrice[23][8] << 1 | matrice[22][8]
+    filtre = 4
     matriceFiltre = [[0 for j in range(0, 14)] for i in range(0, 16)]
     if filtre == 0:
+        print("filtre de type 0")
         return matrice
     elif filtre == 1:
+        print("filtre de type 1")
         for i in range(0, 16):
             for j in range(0, 14):
                 if (i + j) % 2 == 1:
                     matriceFiltre[i][j] = 1
     elif filtre == 2:
+        print("filtre de type 2")
         for i in range(0, 16):
             for j in range(0, 14):
                 if i % 2 == 1:
                     matriceFiltre[i][j] = 1
     elif filtre == 3:
+        print("filtre de type 3")
         for i in range(0, 16):
             for j in range(0, 14):
                 if j % 2 == 1:
@@ -188,6 +193,7 @@ def filtre(matrice):
             x2, y2 = len(matriceFiltre[0]) - 1, len(matriceFiltre) - 1
             matrice[y1 - i][x1 - j] = matrice[y1 - i][x1 - j] ^ matriceFiltre[y2 - i][x2 - j]
     print("filtre {filtre} appliqué".format(filtre=filtre))
+    saving(matriceFiltre, "filtre{filtre}.png".format(filtre=filtre))
     return matrice
 
 
@@ -207,7 +213,7 @@ def HammingRead(matrice):
             bit = matrice[y][x]
             bloc.append(bit)
             if len(bloc) == 7:
-                bloc = correctionHamming(bloc)
+                # bloc = correctionHamming(bloc)
                 donnees.extend(bloc)
                 bloc = []
         etage += 1
@@ -220,7 +226,7 @@ def HammingRead(matrice):
             bit = matrice[y][x]
             bloc.append(bit)
             if len(bloc) == 7:
-                bloc = correctionHamming(bloc)
+                # bloc = correctionHamming(bloc)
                 donnees.extend(bloc)
                 bloc = []
         etage += 1
@@ -237,7 +243,6 @@ def to_ascii(data:list):
         if len(ascii) == 8:
             resultat += chr(int(ascii, 2))
             ascii = ""
-    
     return resultat
 
 print(to_ascii(HammingRead(loading("qr_code_damier_ascii.png"))))
