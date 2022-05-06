@@ -44,6 +44,3 @@ def decodage_hammingQRCODE(bits):
     if num == 7:
         bits[3] = int(not bits[3])
     return bits[:4]
-
-
-print(decodage_hammingQRCODE([1, 1, 0, 0, 0, 0, 0]))
