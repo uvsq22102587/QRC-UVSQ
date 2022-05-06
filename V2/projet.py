@@ -1,15 +1,21 @@
+###############################################################################
+# Projet IN200 - QRCode
+# JACQUIN Valentin, PREHAUD Benjamin
+# Groupe LDDBI
+###############################################################################
 import PIL as pil
+from PIL import Image
 
 
-def nbrCol(matrice):
+def nbrCol(matrice: list):
     return(len(matrice[0]))
 
 
-def nbrLig(matrice):
+def nbrLig(matrice: list):
     return len(matrice)
 
 
-def saving(matPix, filename):
+def saving(matPix: list, filename: str):
     """
     Sauvegarde l'image contenue dans matpix dans le fichier filename
     utiliser une extension png pour que la fonction fonctionne
@@ -22,7 +28,7 @@ def saving(matPix, filename):
     toSave.save(filename)
 
 
-def loading(filename):
+def loading(filename: str):
     """
     Charge le fichier image filename et renvoie une matrice de 0 et de 1 qui
     représente l'image en noir et blanc.
@@ -109,7 +115,10 @@ def creerQRC():
     return qRCode
 
 
-def rotationQRC(matrice):
+def rotationQRC(matrice: list):
+    """
+    Fonction qui tourne un QRC de 90° dans le sens horaire.
+    """
     matrice1 = [[1 for i in range(25)] for j in range(25)]
     for i in range(25):
         ligne = []
@@ -120,7 +129,7 @@ def rotationQRC(matrice):
     return matrice1
 
 
-def extraireCoin(matrice, taillecoin):
+def extraireCoin(matrice: list, taillecoin: int):
     """
     Fonction qui prend une matrice de pixel et qui en sort les 3 coins
     sous forme de liste.
@@ -140,7 +149,7 @@ def extraireCoin(matrice, taillecoin):
     return (coinGaucheHaut, coinDroitHaut, coinGaucheBas)
 
 
-def verifQRC(matrice):
+def verifQRC(matrice: list):
     """
     Fonction qui compare les coins d'une matrice de pixels et qui les compare
     à un QRCODE.
@@ -149,13 +158,16 @@ def verifQRC(matrice):
     """
     averif = extraireCoin(matrice, 7)
     temoin = extraireCoin(creerQRC(), 7)
+    compteur = 0
     while averif != temoin:
         matrice = rotationQRC(matrice)
         averif = extraireCoin(matrice, 7)
+        compteur += 1
+        assert compteur < 4, "La matrice n'est pas un QRCode"
     return matrice
 
 
-def verifLignesQRC(matrice):
+def verifLignesQRC(matrice: list):
     """
     Fonction qui vérifie les lignes en pointillés
     caractéristique d'un QRC sur une matrixe de pixels.
@@ -170,7 +182,7 @@ def verifLignesQRC(matrice):
     return check
 
 
-def gestionHamming(donnees):
+def gestionHamming(donnees: list):
     """
     Fonction qui applique la correction de Hamming sur chacun
     des bloc de 7 bits de la liste données.
@@ -186,7 +198,7 @@ def gestionHamming(donnees):
     return donneesFinale
 
 
-def correctionHamming(bits):
+def correctionHamming(bits: list):
     """
     Fonction qui applique la correction de Hamming à une liste de bits.
     La liste de bits doit être de taille 7.
@@ -210,10 +222,10 @@ def correctionHamming(bits):
     return bits[:4]
 
 
-def filtre(matrice):
+def filtre(matrice: list):
     """
-    Fonction qui vérifie le filtre et son type et qui applique
-    ce filtre au pixel du QRC.
+    Fonction qui vérifie le type de filtre et qui l'applique
+    aux pixels du QRC.
     """
     filtre = (matrice[22][8] << 1) | (matrice[23][8])
     matriceFiltre = [[0 for j in range(0, 14)] for i in range(0, 16)]
@@ -243,7 +255,7 @@ def filtre(matrice):
     return matrice
 
 
-def rawRead(matrice, nbrBloc):
+def rawRead(matrice: list, nbrBloc: int):
     """
     Fonction qui prend une matrice de pixels et la lit sans effectuer
     la vérification via le code de Hamming ni le filtre.
@@ -290,6 +302,7 @@ def to_ascii(data: list):
     Fonction qui prend une liste de bits et qui
     les convertit en caractères ascii.
     """
+    assert len(data) == 8, "La liste doit être de taille 8."
     ascii = ""
     resultat = ""
     for i in range(0, len(data)):
@@ -363,9 +376,9 @@ def to_nums(data: list):
     return data
 
 
-def verifDonnees(matrice):
+def verifDonnees(matrice: list):
     """
-    Fonction qui vérifie le type de données.
+    Fonction qui donne le type de données du QR code.
     """
     if matrice[24][8] == 0:
         return "num"
@@ -375,9 +388,10 @@ def verifDonnees(matrice):
         return "erreur"
 
 
-def verifNbrBloc(matrice):
+def verifNbrBloc(matrice: list):
     """
-    Fonction qui retourne le nombre de bloc du QRC.
+    Fonction qui retourne le nombre de bloc
+    codant du QRC.
     """
     nbrBlocbase2 = []
     for i in range(13, 18):
@@ -386,12 +400,14 @@ def verifNbrBloc(matrice):
     return nbrBloc
 
 
-def lectureComplete(matrice):
+def lectureComplete(matrice: list):
     """
     Fonction qui interprète entirement le QRC.
     A l'aide des fonctions écrites précédemment.
     """
     matrice = verifQRC(matrice)
+    assert verifLignesQRC(matrice), "QRC invalide, les lignes pointillés \
+        sont manquantes"
     nbrBloc = verifNbrBloc(matrice)
     typeDonnees = verifDonnees(matrice)
     matrice = filtre(matrice)
