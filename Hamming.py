@@ -1,3 +1,26 @@
+def saving(matPix, filename):
+    toSave=pil.Image.new("RGBA",(nbrCol(matPix),nbrLig(matPix)))
+    for i in range(nbrCol(matPix)):
+        for j in range(nbrLig(matPix)):
+            toSave.putpixel((i,j),matPix[j][i])
+    toSave.save(filename)
+
+
+def loading(filename):
+    toLoad=pil.Image.open(filename)
+    mat=[[(255,255,255,255)]*toLoad.size[0] for k in range(toLoad.size[1])]
+    for i in range(toLoad.size[1]):
+        for j in range(toLoad.size[0]):
+            mat[i][j]=toLoad.getpixel((j,i))
+    return mat
+
+
+def nbrCol(matrice):
+    return(len(matrice[0]))
+
+
+def nbrLig(matrice):
+    return len(matrice)
 
 
 def codage_hamming(bits):
