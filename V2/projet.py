@@ -5,6 +5,8 @@
 ###############################################################################
 import PIL as pil
 from PIL import Image
+###############################################################################
+# Fonction importée faites en TD
 
 
 def nbrCol(matrice: list):
@@ -39,6 +41,82 @@ def loading(filename: str):
         for j in range(toLoad.size[0]):
             mat[i][j] = 0 if toLoad.getpixel((j, i)) == 0 else 1
     return mat
+
+
+def conversionEntier(liste: list, b: int):
+    """
+    Fonction qui convertit une liste de bits en un entier.
+    """
+    res = 0
+    liste.reverse()
+    for i in range(0, len(liste)):
+        res += (liste[i] * (b**i))
+    return res
+
+
+def conversionBase(nombre: int, b: int):
+    """
+    Fonction qui convertit un nombre en base b.
+    """
+    if(nombre == 0):
+        return [0]
+    res = []
+    while nombre / b != 0:
+        res.append(nombre % b)
+        nombre = nombre // b
+    res.reverse()
+    return res
+
+
+def baseHexa(liste: list):
+    """
+    Fonction qui convertit un nombre en base 16
+    en affichage hexadecimal.
+    """
+    dico = ["A", "B", "C", "D", "E", "F"]
+    liste.reverse()
+    res = ""
+    for v in liste:
+        if(v == 10):
+            res += dico[0]
+        if(v == 11):
+            res += dico[1]
+        if(v == 12):
+            res += dico[2]
+        if(v == 13):
+            res += dico[3]
+        if(v == 14):
+            res += dico[4]
+        if(v == 15):
+            res += dico[5]
+        if(v < 10):
+            res += str(v)
+        return res
+
+
+def correctionHamming(bits: list):
+    """
+    Fonction qui applique la correction de Hamming à une liste de bits.
+    La liste de bits doit être de taille 7.
+    Cette fonction a été faite en cours.
+    """
+    assert len(bits) == 7, "La liste de bits doit être de taille 7."
+    # calcul bits de controle
+    p1 = bits[0] ^ bits[1] ^ bits[2]
+    p2 = bits[0] ^ bits[2] ^ bits[3]
+    p3 = bits[1] ^ bits[2] ^ bits[3]
+    # position erreur
+    num = int(p1 != bits[4]) + int(p2 != bits[5]) * 2 + int(p3 != bits[6]) * 4
+    if num == 3:
+        bits[0] = int(not bits[0])
+    if num == 5:
+        bits[1] = int(not bits[1])
+    if num == 6:
+        bits[2] = int(not bits[2])
+    if num == 7:
+        bits[3] = int(not bits[3])
+    return bits[:4]
+###############################################################################
 
 
 def creerQRC():
@@ -198,58 +276,42 @@ def gestionHamming(donnees: list):
     return donneesFinale
 
 
-def correctionHamming(bits: list):
-    """
-    Fonction qui applique la correction de Hamming à une liste de bits.
-    La liste de bits doit être de taille 7.
-    Cette fonction a été faite en cours.
-    """
-    assert len(bits) == 7, "La liste de bits doit être de taille 7."
-    # calcul bits de controle
-    p1 = bits[0] ^ bits[1] ^ bits[2]
-    p2 = bits[0] ^ bits[2] ^ bits[3]
-    p3 = bits[1] ^ bits[2] ^ bits[3]
-    # position erreur
-    num = int(p1 != bits[4]) + int(p2 != bits[5]) * 2 + int(p3 != bits[6]) * 4
-    if num == 3:
-        bits[0] = int(not bits[0])
-    if num == 5:
-        bits[1] = int(not bits[1])
-    if num == 6:
-        bits[2] = int(not bits[2])
-    if num == 7:
-        bits[3] = int(not bits[3])
-    return bits[:4]
-
-
 def filtre(matrice: list):
     """
     Fonction qui vérifie le type de filtre et qui l'applique
     aux pixels du QRC.
     """
+    # Le filtre est stocké dans les pixels 22.8 et 23.8
     filtre = (matrice[22][8] << 1) | (matrice[23][8])
+    # On initialise la matrice de Filtre
     matriceFiltre = [[0 for j in range(0, 14)] for i in range(0, 16)]
     if filtre == 0:
         return matrice
+    # En fonction du filtre, la matrice filtre va être remplie
     elif filtre == 1:
+        # 01 = Damier
         for i in range(0, 16):
             for j in range(0, 14):
                 if (i + j) % 2 == 1:
                     matriceFiltre[i][j] = 1
     elif filtre == 2:
+        # 10 = Lignes horizontales alternées noires et blanches
         for i in range(0, 16):
             for j in range(0, 14):
                 if i % 2 == 1:
                     matriceFiltre[i][j] = 1
     elif filtre == 3:
+        # 11 = Lignes verticales alternées noires et blanches
         for i in range(0, 16):
             for j in range(0, 14):
                 if j % 2 == 1:
                     matriceFiltre[i][j] = int(not matriceFiltre[i][j])
     for i in range(len(matriceFiltre)):
+        # On applique le filtre sur la matrice du QRC
         for j in range(len(matriceFiltre[0])):
             x1, y1 = len(matrice[0]) - 1, len(matrice) - 1
             x2, y2 = len(matriceFiltre[0]) - 1, len(matriceFiltre) - 1
+            # On fait un XOR entre les deux matrices
             matrice[y1 - i][x1 - j] = matrice[y1 - i][x1 - j] ^ \
                 matriceFiltre[y2 - i][x2 - j]
     return matrice
@@ -311,57 +373,6 @@ def to_ascii(data: list):
             resultat += chr(int(ascii, 2))
             ascii = ""
     return resultat
-
-
-def conversionEntier(liste: list, b: int):
-    """
-    Fonction qui convertit une liste de bits en un entier.
-    """
-    res = 0
-    liste.reverse()
-    for i in range(0, len(liste)):
-        res += (liste[i] * (b**i))
-    return res
-
-
-def conversionBase(nombre: int, b: int):
-    """
-    Fonction qui convertit un nombre en base b.
-    """
-    if(nombre == 0):
-        return [0]
-    res = []
-    while nombre / b != 0:
-        res.append(nombre % b)
-        nombre = nombre // b
-    res.reverse()
-    return res
-
-
-def baseHexa(liste: list):
-    """
-    Fonction qui convertit un nombre en base 16
-    en affichage hexadecimal.
-    """
-    dico = ["A", "B", "C", "D", "E", "F"]
-    liste.reverse()
-    res = ""
-    for v in liste:
-        if(v == 10):
-            res += dico[0]
-        if(v == 11):
-            res += dico[1]
-        if(v == 12):
-            res += dico[2]
-        if(v == 13):
-            res += dico[3]
-        if(v == 14):
-            res += dico[4]
-        if(v == 15):
-            res += dico[5]
-        if(v < 10):
-            res += str(v)
-        return res
 
 
 def to_nums(data: list):
