@@ -125,7 +125,7 @@ def correctionHamming(bits: list):
     if num == 7:
         # erreur sur le bit 4
         bits[3] = int(not bits[3])
-    # (Si le nombre num est différent de 4, 5, 6 ou 7, c'est qu'il y a une
+    # (Si le nombre num est différent de 3, 5, 6 ou 7, c'est qu'il y a une
     # erreur sur le bit de contrôle. Donc on ne fait rien.)
     # On retourne la liste de bits sans les bits de controle
     return bits[:4]
