@@ -299,10 +299,9 @@ def gestionHamming(donnees: list):
     des bloc de 7 bits de la liste données.
     """
     sousDonnees, donneesFinale = [], []
-    # donnees est organisée en bloc de 7 bits.
-    # Classés eux même par deux (Deux bloc de 7 bits ensemble).
-    # Donc pour chaque sous list de 2 bloc, on applique la correction
-    # aux deux bloc qui y sont rangés.
+    print(donnees[0], donnees[1])
+    # donnees est organisée en bloc de 14 bits.
+    # Deux bloc de 7 Bit qui se suivent.
     for j in range(0, len(donnees)):
         for i in range(0, 2):
             # On fait la correction de Hamming sur le bloc correspondant.
@@ -358,14 +357,19 @@ def filtre(matrice: list):
 
 def rawRead(matrice: list, nbrBloc: int):
     """
-    Fonction qui prend une matrice de pixels et la lit sans effectuer
+    Fonction qui prend une matrice de pixel de QRC sans effectuer
     la vérification via le code de Hamming ni le filtre.
+    Cette fonction prend en compte le nbr de bloc du QRC pour ne donner
+    que le nombre de bloc codant des informations.
     """
     donnees = []
     etage = 0
     # On lit tous les blocs (maximum 16)
-    while len(donnees) <= 16 * 14:
+    # Ici quand on parle de bloc, un bloc représente
+    # 2 sous bloc de 7.
+    while len(donnees) <= 16 * 2 * 7:
         # On fait le "zigzag" pour lire les données
+        # i donne le i-ème bit (en commencant par 0)
         for i in range(0, 28):
             # Si on est sur les bits pairs (i % 2 = 0)
             # le y est le plus grand (len(matrice) - 1)

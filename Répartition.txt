@@ -1,0 +1,6 @@
+Benjamin:
+- ConversionEntier/ Conversion Base 16 /  Affiche base 16/ to_nums
+- Rotation / CreerQRC Vide/ Verif QRC/ Extraire coin
+Val:
+-Raw READ/ Filtre/ to_ascii
+- verifDonnees / verifNbrBloc/ LectureComplete
