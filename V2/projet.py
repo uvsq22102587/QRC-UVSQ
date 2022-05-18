@@ -228,14 +228,14 @@ def extraireCoin(matrice: list, taillecoin: int):
     sous forme de liste.
     """
     # Pour le coin gauche haut on prend les premiers éléments de la première
-    # ligne puis de la deuxième, jusqu'à arriver à la ligne notée 
-    # par la variable taille coin. 
+    # ligne puis de la deuxième, jusqu'à arriver à la ligne notée
+    # par la variable taille coin.
     # Le nombre d'éléments dépendra de la variable taillecoin.
     coinGaucheHaut = [
         [matrice[i][j] for i in range(0, taillecoin)]
         for j in range(0, taillecoin)
         ]
-    # Pour le coin droite haut on commence par les premiers élement de la 
+    # Pour le coin droite haut on commence par les premiers élement de la
     # première ligne.
     coinDroitHaut = [
         [matrice[i][j] for i in range(0, taillecoin)]
@@ -280,7 +280,7 @@ def verifLignesQRC(matrice: list):
     caractéristique d'un QRC sur une matrixe de pixels.
     """
     check = True
-    for i in range(6, 18): # on parcours la ligne verticale.
+    for i in range(6, 18):  # on parcours la ligne verticale.
         # Si i est pair, la case doit être noire.
         # Si i est impair, la case doit être blanche.
         # Sinon, on change la valeur de check.
